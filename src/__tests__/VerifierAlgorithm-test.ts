@@ -6,17 +6,24 @@ import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'
 import { base64ToBytes, bytesToBase64 } from '../util'
-import { personalSign } from 'eth-sig-util'
-import { fromRpcSig } from 'ethereumjs-util'
+import { fromRpcSig, toBuffer, hashPersonalMessage, ecsign, bufferToHex } from 'ethereumjs-util'
+import { concatSig } from 'eth-sig-util'
 
-// TODO: add signature with chain id
-// currently tests with chain id are not passing, but the implementation
-// was already added. this is due to the lack of chain id support from
-// eth-sig-util. once this is added it should make tests pass...
+// https://github.com/MetaMask/eth-sig-util/blob/master/index.ts#L299
+function personalSign (privateKey, msgParams, chainId?): string {
+  const message = toBuffer(msgParams.data);
+  const msgHash = hashPersonalMessage(message);
+  const sig = ecsign(msgHash, privateKey); // adds 27 by default
+  // https://github.com/ethereumjs/ethereumjs-util/blob/master/src/signature.ts#L27
+  sig.v = chainId ? sig.v + (chainId * 2 + 35) - 27 : sig.v // decreases 27 added by ecsign
+  const serialized = bufferToHex(concatSig(sig.v, sig.r, sig.s));
+  return serialized;
+}
+
 export const ethPersonalSigner = (privateKey: string, chainId?: number) => (data) => {
   const { r, s, v } = fromRpcSig(
     personalSign(
-      Buffer.from(privateKey, 'hex'), { data }
+      Buffer.from(privateKey, 'hex'), { data }, chainId
     )
   )
 
@@ -175,7 +182,7 @@ describe.each([
 describe.each([
   ['SimpleSigner', SimpleSigner(privateKey), false, undefined],
   ['Eth signer + EIP-155 without chain id', ethPersonalSigner(privateKey), true, undefined],
-  ['Eth signer + EIP-155 with chain id', ethPersonalSigner(privateKey), true, 31]
+  ['Eth signer + EIP-155 with chain id', ethPersonalSigner(privateKey, 31), true, 31]
 ])('ES256K-R - %s', (_, signer, ethSigner, chainId) => {
   const verifier = VerifierAlgorithm('ES256K-R')
 
