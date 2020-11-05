@@ -1,7 +1,31 @@
-# did-jwt
-[![npm](https://img.shields.io/npm/dt/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
-[![npm](https://img.shields.io/npm/v/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
-[![Twitter Follow](https://img.shields.io/twitter/follow/uport_me.svg?style=social&label=Follow)](https://twitter.com/uport_me)
+<p align="middle">
+    <img src="https://www.rifos.org/assets/img/logo.svg" alt="logo" height="100" >
+</p>
+<h3 align="middle"><code>@rsksmart/did-jwt</code></h3>
+<p align="middle">
+    DID JWT + Eth sign support
+</p>
+<p align="middle">
+    <a href="https://badge.fury.io/js/%40rsksmart%did-jwt">
+        <img src="https://badge.fury.io/js/%40rsksmart%2Fdid-jwt.svg" alt="npm" />
+    </a>
+</p>
+
+```
+npm i @rsksmart/did-jwt
+```
+
+### Disclaimer
+
+This package is a fork of [did-jwt](https://github.com/decentralized-identity/did-jwt) used to pre-release RSK-oriented features. The features on this package will be PRed into `did-jwt`.
+
+**Versioning** This package will use the next sem-version minor yet not released to npm, post-fixed with beta versioning. E.g.: `v4.6.2-beta.1`
+
+**Collaborate** Point your PR to `develop`. `rsksmart-org` branch will be rebased on `develop` once the PR is approved. Other PR pointing to `rsksmart-org` will be responsible for updating readme + updating version after feature is rebased. `develop` will be rebased onto `upstream/develop` when `did-jwt` package is updated.
+
+---
+
+# `did-jwt`
 
 [Algorithms supported](docs/guides/index.md#algorithms-supported) | [DID Public Key Types](docs/guides/index.md#did-publickey-types) | [Claim Specification](docs/guides/index.md#claims)
 
