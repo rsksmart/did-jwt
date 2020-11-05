@@ -17,7 +17,12 @@ export interface Resolvable {
   resolve: (did: string) => Promise<DIDDocument | null>
 }
 
-export interface JWTVerifyOptions {
+export interface EthSignOptions {
+  ethSign?: boolean
+  chainId?: number
+}
+
+export interface JWTVerifyOptions extends EthSignOptions {
   auth?: boolean
   audience?: string
   callbackUrl?: string
@@ -186,9 +191,12 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header)
 }
 
-function verifyJWSDecoded({ header, data, signature }: JWSDecoded, pubkeys: PublicKey | PublicKey[]): PublicKey {
+function verifyJWSDecoded({ header, data, signature }: JWSDecoded, pubkeys: PublicKey | PublicKey[], ethSignOptions?: EthSignOptions): PublicKey {
   if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
-  const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
+  const verifier = VerifierAlgorithm(header.alg)
+  const signer: PublicKey = ethSignOptions
+    ? verifier(data, signature, pubkeys, ethSignOptions.ethSign, ethSignOptions.chainId)
+    : verifier(data, signature, pubkeys)
   return signer
 }
 
@@ -235,7 +243,9 @@ export async function verifyJWT(
     resolver: null,
     auth: null,
     audience: null,
-    callbackUrl: null
+    callbackUrl: null,
+    ethSign: false,
+    chainId: null
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
@@ -246,7 +256,7 @@ export async function verifyJWT(
     payload.iss,
     options.auth
   )
-  const signer: PublicKey = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
+  const signer: PublicKey = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators, { ethSign: options.ethSign, chainId: options.chainId })
   const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
     const nowSkewed = now + NBF_SKEW
