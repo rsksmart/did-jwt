@@ -6,6 +6,12 @@ export function sha256(payload: string): Uint8Array {
   return hash(u8a.fromString(payload))
 }
 
+// https://github.com/ethereumjs/ethereumjs-util/blob/dd2882d790c1d3b50b75bee6f88031433cbd5bef/src/signature.ts#L137
+export function hashPersonalMessage(message: string): Uint8Array {
+  const prefix = Buffer.from(`\u0019Ethereum Signed Message:\n${message.length.toString()}`, 'utf-8')
+  return new Uint8Array(keccak_256.arrayBuffer(u8a.concat([prefix, u8a.fromString(message)])))
+}
+
 export function keccak(data: Uint8Array): Uint8Array {
   return new Uint8Array(keccak_256.arrayBuffer(data))
 }

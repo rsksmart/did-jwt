@@ -15,7 +15,8 @@
     "esm"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch --verbose",
     "test:ci": "jest --coverage && codecov",
     "build:js": "microbundle",
     "build:browser": "webpack --config webpack.config.js",
@@ -71,6 +72,8 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-standard": "4.0.2",
+    "eth-sig-util": "^2.5.3",
+    "ethereumjs-util": "^7.0.7",
     "jest": "26.6.3",
     "jsdoc-to-markdown": "6.0.1",
     "jsontokens": "3.0.0",
