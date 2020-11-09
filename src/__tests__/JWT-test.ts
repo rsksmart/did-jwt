@@ -6,6 +6,7 @@ import { bytesToBase64url, decodeBase64url } from '../util'
 import { verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
 import { PublicKey } from 'did-resolver'
+import { ethPersonalSigner } from '../test-utils/ethPersonalSigner'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -264,6 +265,38 @@ describe('verifyJWT()', () => {
     const ethResolver = { resolve: jest.fn().mockReturnValue(didDocDefault) }
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
+    return expect(payload).toMatchSnapshot()
+  })
+
+
+  it('handles ES256K algorithm with ethereum address + Eth signer + EIP-155', async () => {
+    const ethResolver = { resolve: jest.fn().mockReturnValue(didDocDefault) }
+    const jwt = await createJWT(
+      { hello: 'world' },
+      { issuer: aud, signer: ethPersonalSigner(privateKey), alg: 'ES256K' }
+    )
+    const { payload } = await verifyJWT(jwt, { resolver: ethResolver, ethSign: true })
+    return expect(payload).toMatchSnapshot()
+  })
+
+  it('handles ES256K-R algorithm with ethereum address + Eth signer + EIP-155', async () => {
+    const ethResolver = { resolve: jest.fn().mockReturnValue(didDocDefault) }
+    const jwt = await createJWT(
+      { hello: 'world' },
+      { issuer: aud, signer: ethPersonalSigner(privateKey), alg: 'ES256K-R' }
+    )
+    const { payload } = await verifyJWT(jwt, { resolver: ethResolver, ethSign: true })
+    return expect(payload).toMatchSnapshot()
+  })
+
+
+  it('handles ES256K-R algorithm with ethereum address + Eth signer + EIP-155 + chainId', async () => {
+    const ethResolver = { resolve: jest.fn().mockReturnValue(didDocDefault) }
+    const jwt = await createJWT(
+      { hello: 'world' },
+      { issuer: aud, signer: ethPersonalSigner(privateKey, 31), alg: 'ES256K-R' }
+    )
+    const { payload } = await verifyJWT(jwt, { resolver: ethResolver, ethSign: true, chainId: 31 })
     return expect(payload).toMatchSnapshot()
   })
 
